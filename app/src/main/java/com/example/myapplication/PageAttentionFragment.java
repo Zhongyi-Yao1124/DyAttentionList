@@ -48,7 +48,6 @@ public class PageAttentionFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         progressBar = view.findViewById(R.id.progressBar);
 
-        // 初始化UserDao
         userDao = new DAO(getContext());
 
         return view;
@@ -65,7 +64,6 @@ public class PageAttentionFragment extends Fragment {
         adapter = new AttentionAdapter(userList, new AttentionAdapter.OnUserClickListener() {
             @Override
             public void onAttentionClick(int position) {
-                // 处理关注/取消关注操作
                 User user = userList.get(position);
                 toggleUserStatus(user, position);
             }
@@ -85,7 +83,6 @@ public class PageAttentionFragment extends Fragment {
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.user_detail, null);
         bottomSheetDialog.setContentView(dialogView);
 
-        // 初始化视图
         TextView tvUserName = dialogView.findViewById(R.id.tv_user_name);
         TextView tvDyNumber = dialogView.findViewById(R.id.tv_dy_number);
         Switch switchSpecialAttention = dialogView.findViewById(R.id.switch_special_attention);
@@ -93,10 +90,9 @@ public class PageAttentionFragment extends Fragment {
         TextView tvUnattention = dialogView.findViewById(R.id.tv_unattention);
         EditText etRemark = dialogView.findViewById(R.id.et_remark);
 
-        // 设置用户信息
         tvUserName.setText(user.getName());
         tvDyNumber.setText("抖音号：" + user.getDyName());
-
+        loadSpecialSwitch(user.getId(), switchSpecialAttention);
         executor.execute(() -> {
             String remark = userDao.getRemarkContent(user.getId(), 1);
             mainHandler.post(() -> etRemark.setText(remark));
@@ -106,28 +102,22 @@ public class PageAttentionFragment extends Fragment {
             executor.execute(() -> userDao.saveOrUpdateRemark(user.getId(), 1, remark));
         });
 
-        // 设置特别关注开关监听
         switchSpecialAttention.setOnCheckedChangeListener((buttonView, isChecked) -> {
             updateSpecialAttention(user.getId(), isChecked ? 1 : 0);
         });
 
 
-        // 取消关注按钮点击事件
         tvUnattention.setOnClickListener(v -> {
             user.setStatus(0); // 设置为未关注状态
 
-            // 在列表中查找并更新对应的用户
             for (int i = 0; i < userList.size(); i++) {
                 if (userList.get(i).getId() == user.getId()) {
-                    // 更新列表中的用户状态
                     userList.get(i).setStatus(0);
-                    // 通知适配器更新特定位置
                     adapter.notifyItemChanged(i);
                     break;
                 }
             }
 
-            // 异步更新数据库
             executor.execute(() -> {
                 try {
                     userDao.updateUser(user);
@@ -138,7 +128,6 @@ public class PageAttentionFragment extends Fragment {
                     e.printStackTrace();
                     mainHandler.post(() -> {
                         Toast.makeText(getContext(), "操作失败", Toast.LENGTH_SHORT).show();
-                        // 如果数据库更新失败，恢复UI状态
                         user.setStatus(1);
                         for (int i = 0; i < userList.size(); i++) {
                             if (userList.get(i).getId() == user.getId()) {
@@ -155,6 +144,18 @@ public class PageAttentionFragment extends Fragment {
         });
 
         bottomSheetDialog.show();
+    }
+    private void loadSpecialSwitch(int userId, Switch switchSpecialAttention) {
+        executor.execute(() -> {
+            try {
+                int ifSpecial = userDao.getIfSpecial(userId, 1);
+                mainHandler.post(() -> {
+                    switchSpecialAttention.setChecked(ifSpecial == 1);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void updateSpecialAttention(int userId, int ifSpecial) {
@@ -180,9 +181,7 @@ public class PageAttentionFragment extends Fragment {
 
         executor.execute(() -> {
             try {
-                // 在后台线程中查询数据库 - 只获取已关注的用户
                 List<User> users = userDao.getUserList();
-                // 切换到主线程更新UI
                 mainHandler.post(() -> {
                     progressBar.setVisibility(View.GONE);
                     recyclerView.setVisibility(View.VISIBLE);
@@ -208,21 +207,18 @@ public class PageAttentionFragment extends Fragment {
     private void toggleUserStatus(User user, int position) {
         executor.execute(() -> {
             try {
-                // 切换关注状态
                 int newUserStatus = 1 - user.getStatus();
                 user.setStatus(newUserStatus);
                 userDao.updateUser(user);
 
                 mainHandler.post(() -> {
                     if (newUserStatus == 1) {
-                        // 关注操作：更新按钮状态
                         if (position >= 0 && position < userList.size()) {
                             userList.set(position, user);
                             adapter.notifyItemChanged(position);
                         }
                         Toast.makeText(getContext(), "已关注", Toast.LENGTH_SHORT).show();
                     } else {
-                        // 取消关注操作：只更新按钮状态，不移除用户
                         if (position >= 0 && position < userList.size()) {
                             userList.set(position, user);
                             adapter.notifyItemChanged(position);
@@ -248,7 +244,6 @@ public class PageAttentionFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // 当Fragment重新显示时，重新加载数据
         loadDataFromDatabase();
     }
 

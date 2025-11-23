@@ -51,7 +51,7 @@ public class DAO {
         }
         return list;
     }
-    public List<Map<String,Object>> getList(){
+    public List<Map<String,Object>> getList(){//后续应重构为该泛型方法
         List<Map<String,Object>> list = new ArrayList<>();
         Cursor cursor = database.rawQuery("select * from users", null);
         try{
@@ -119,15 +119,12 @@ public class DAO {
     }
 
     public void updateSpecialAttention(int userId, int pId, int ifSpecial) {
-        // 先检查是否存在记录
         Cursor cursor = database.rawQuery("select id from remarks where user_id = " + userId + " and p_id = " + pId, null);
         try {
             if (cursor.moveToFirst()) {
-                // 更新现有记录
                 String sql = "update remarks set if_special = " + ifSpecial + " where user_id = " + userId + " and p_id = " + pId;
                 database.execSQL(sql);
             } else {
-                // 插入新记录
                 String sql = "insert into remarks (content, if_special, user_id, p_id) values ('', " + ifSpecial + ", " + userId + ", " + pId + ")";
                 database.execSQL(sql);
             }
@@ -137,15 +134,12 @@ public class DAO {
     }
 
     public void saveOrUpdateRemark(int userId, int pId, String content) {
-        // 先检查是否存在记录
         Cursor cursor = database.rawQuery("select id from remarks where user_id = " + userId + " and p_id = " + pId, null);
         try {
             if (cursor.moveToFirst()) {
-                // 更新现有记录
                 String sql = "update remarks set content = '" + content + "' where user_id = " + userId + " and p_id = " + pId;
                 database.execSQL(sql);
             } else {
-                // 插入新记录
                 String sql = "insert into remarks (content, if_special, user_id, p_id) values ('" + content + "', 0, " + userId + ", " + pId + ")";
                 database.execSQL(sql);
             }
