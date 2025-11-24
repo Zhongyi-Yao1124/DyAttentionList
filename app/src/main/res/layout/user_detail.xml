@@ -4,8 +4,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     >
-
-    <!-- 用户信息区域 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,7 +41,6 @@
 
     </LinearLayout>
 
-    <!-- 功能选项区域 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,7 +48,6 @@
         android:layout_marginTop="8dp"
         android:background="@android:color/white">
 
-        <!-- 特别关注 -->
         <RelativeLayout
             android:id="@+id/layout_special_attention"
             android:layout_width="match_parent"
