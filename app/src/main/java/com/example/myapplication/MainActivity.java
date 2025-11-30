@@ -26,12 +26,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        DAO dao = new DAO(this);
-        if(dao.getUserList().isEmpty()){
-            dao.addUser("周杰伦","dy001",1);
-            dao.addUser("王心凌","dy002",1);
-            dao.addUser("张韶涵","dy003",1);//首次加载
-        }
         viewPager = findViewById(R.id.viewpager);
         tabLayout = findViewById(R.id.tabLayout);
         myAdapter = new MyAdapter(this);
@@ -69,6 +63,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).attach();
-        dao.close();
     }
 }

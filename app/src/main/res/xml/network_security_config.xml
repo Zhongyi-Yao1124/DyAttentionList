@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- 允许访问您的Mock Server -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">4cae045b-6953-475b-a887-f2a8eba82e6f.mock.pstmn.io</domain>
+    </domain-config>
+</network-security-config>
